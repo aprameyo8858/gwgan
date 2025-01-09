@@ -9,7 +9,7 @@ import torch
 import geoopt
 import numpy as np
 import torch.nn.functional as F
-from sgw_pytorch_original import sgw_gpu_original
+from model.sgw_pytorch_original import sgw_gpu_original
 import time
 
 def risgw_gpu_original(xs,xt,device,nproj=200,P=None,lr=0.001,
