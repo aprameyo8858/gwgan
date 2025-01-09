@@ -111,8 +111,8 @@ fig1.savefig(save_fig_path + '/real.pdf')
 # define networks and parameters
 generator = Generator()
 adversary = Adversary()
-generator=generator.to('cuda')
-adversary=adversary.to('cuda')
+#generator=generator.to('cuda')
+#adversary=adversary.to('cuda')
 
 # weight initialisation
 generator.apply(weights_init_generator)
@@ -161,7 +161,7 @@ for it in range(train_iter):
         for p in adversary.parameters():
             p.requires_grad = False
 
-        g = generator.forward(z.to('cuda'))
+        g = generator.forward(z)
         f_g = g
         f_x = x
     else:
@@ -181,8 +181,8 @@ for it in range(train_iter):
         g = generator.forward(z.to('cuda'))
 
         # result adversary
-        f_x = adversary.forward(x.to('cuda'))
-        f_g = adversary.forward(g.to('cuda'))
+        f_x = adversary.forward(x)
+        f_g = adversary.forward(g)
 
     # compute inner distances
     D_g = get_inner_distances(f_g, metric='euclidean', concat=False)
@@ -214,7 +214,7 @@ for it in range(train_iter):
 
     else:
         if train_c and it < stop_adversary:
-            loss_og = loss_procrustes(f_x.to('cuda'), x.to('cuda'), cuda=True)
+            loss_og = loss_procrustes(f_x, x, cuda=False)
             loss_adv = -loss_gw + beta * loss_og
             # train adversary
             loss_adv.backward()
@@ -240,7 +240,7 @@ for it in range(train_iter):
     # plotting
     if (it+1) % plot_every == 0:
         # get generator example
-        g_ex = generator.forward(z_ex.to('cuda'))
+        g_ex = generator.forward(z_ex)
         if it >= only_g:
             f_gx = adversary.forward(g_ex)
             f_gx = f_gx.detach().numpy()
