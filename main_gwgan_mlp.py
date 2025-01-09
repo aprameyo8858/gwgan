@@ -189,9 +189,8 @@ for it in range(train_iter):
     D_g_norm = normalise_matrices(D_g)
 
     # compute normalized gromov-wasserstein distance
-    loss_gw, T = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),
-                                 epsilon, niter, loss_fun='square_loss',
-                                 coupling=True)
+    #loss_gw, T = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss', coupling=True)
+    loss_gw = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss', coupling=False)
 
     if it < only_g:
         # train generator
