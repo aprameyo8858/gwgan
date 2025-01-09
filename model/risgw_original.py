@@ -13,7 +13,7 @@ from model.sgw_pytorch_original import sgw_gpu_original
 import time
 
 def risgw_gpu_original(xs,xt,device,nproj=200,P=None,lr=0.001,
-              max_iter=100, verbose=False, step_verbose=10, tolog=False, retain_graph=True):
+              max_iter=100, verbose=False, step_verbose=10, tolog=False, retain_graph=False):
     """ Returns RISGW between xs and xt eq (5) in [1]. 
     The dimension of xs must be less or equal than xt (ie p<=q)
     Parameters
