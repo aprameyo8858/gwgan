@@ -181,8 +181,8 @@ for it in range(train_iter):
         g = generator.forward(z.to('cuda'))
 
         # result adversary
-        f_x = adversary.forward(x)
-        f_g = adversary.forward(g)
+        f_x = adversary.forward(x.to('cuda'))
+        f_g = adversary.forward(g.to('cuda'))
 
     # compute inner distances
     D_g = get_inner_distances(f_g, metric='euclidean', concat=False)
