@@ -178,7 +178,7 @@ for it in range(train_iter):
                 p.requires_grad = False
 
         # result generator
-        g = generator.forward(z)
+        g = generator.forward(z.to('cuda'))
 
         # result adversary
         f_x = adversary.forward(x)
