@@ -248,7 +248,7 @@ for it in range(train_iter):
         ax2 = fig2.add_subplot(111)
         result = pd.DataFrame({'x1': g_ex[:, 0],
                                'x2': g_ex[:, 1]})
-        sns.kdeplot(result.x1, result.x2,
+        sns.kdeplot(x=result.x1, y=result.x2,
                     shade=True, cmap='Blues', n_levels=20, legend=False)
         # ax2.set_title(r'$g_\theta(Z)$')
         ax2.set_title(r'iteration {}'.format((it+1)))
