@@ -99,7 +99,7 @@ else:
                        'x2': real[:, 1],
                        'in': real_y})
     ax1 = fig1.add_subplot(111)
-    sns.kdeplot(df.x1, df.x2, shade=True, cmap='Blues', n_levels=20, legend=False)
+    sns.kdeplot(x=df.x1, y=df.x2, shade=True, cmap='Blues', n_levels=20, legend=False)
 ax1.set_xlim([-4, 4])
 ax1.set_ylim([-4, 4])
 ax1.set_title(r'target')
