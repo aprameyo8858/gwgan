@@ -19,7 +19,7 @@ from model.model_mlp import Generator, Adversary
 from model.model_mlp import weights_init_adversary, weights_init_generator
 from model.loss import gwnorm_distance
 from model.loss import loss_procrustes
-
+from model.sgw_pytorch_original import sgw_gpu_original
 # get arguments
 FUNCTION_MAP = {'4mode': gaussians_4mode,
                 '5mode': gaussians_5mode,
