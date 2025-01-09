@@ -240,7 +240,7 @@ for it in range(train_iter):
     # plotting
     if (it+1) % plot_every == 0:
         # get generator example
-        g_ex = generator.forward(z_ex)
+        g_ex = generator.forward(z_ex.to('cuda'))
         if it >= only_g:
             f_gx = adversary.forward(g_ex)
             f_gx = f_gx.detach().numpy()
