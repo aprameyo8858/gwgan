@@ -20,6 +20,8 @@ from model.model_mlp import weights_init_adversary, weights_init_generator
 from model.loss import gwnorm_distance
 from model.loss import loss_procrustes
 from model.sgw_pytorch_original import sgw_gpu_original
+from model.risgw_original import risgw_gpu_original
+
 # get arguments
 FUNCTION_MAP = {'4mode': gaussians_4mode,
                 '5mode': gaussians_5mode,
@@ -191,7 +193,8 @@ for it in range(train_iter):
     # compute normalized gromov-wasserstein distance
     #loss_gw, T = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss', coupling=True)
     #loss_gw = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss', coupling=False)
-    loss_gw = sgw_gpu_original(D_x_norm.to('cuda'), D_g_norm.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
+    #loss_gw = sgw_gpu_original(D_x_norm.to('cuda'), D_g_norm.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
+    loss_gw=risgw_gpu_original(D_x_norm.to('cuda'), D_g_norm.to('cuda') ,'cuda' ,nproj=200,P=None,lr=0.001, max_iter=100, verbose=False, step_verbose=10, tolog=False, retain_graph=False)
     if it < only_g:
         # train generator
         if l1_reg:
