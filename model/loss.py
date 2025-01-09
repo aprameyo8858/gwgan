@@ -7,24 +7,24 @@ from optra.gromov_wasserstein import entropic_gromov_wasserstein
 
 
 def gwnorm_distance(D_x, D_g, epsilon, niter, loss_fun='square_loss',
-                    coupling=True, cuda=False):
+                    coupling=False, cuda=False):
     p = torch.ones((D_x[0].shape[1], ))
     p /= torch.numel(p)
     q = torch.ones((D_g[0].shape[1], ))
     q /= torch.numel(q)
 
-    gw_x_x, _ = entropic_gromov_wasserstein(D_x, D_x, p, p,
+    gw_x_x = entropic_gromov_wasserstein(D_x, D_x, p, p,
                                          loss_fun, epsilon, niter,
                                          coupling=coupling, cuda=cuda)
-    gw_x_g, T = entropic_gromov_wasserstein(D_x, D_g, p, q,
+    gw_x_g = entropic_gromov_wasserstein(D_x, D_g, p, q,
                                          loss_fun, epsilon, niter,
                                          coupling=coupling, cuda=cuda)
-    gw_g_g, _ = entropic_gromov_wasserstein(D_g, D_g, q, q,
+    gw_g_g = entropic_gromov_wasserstein(D_g, D_g, q, q,
                                          loss_fun, epsilon, niter,
                                          coupling=coupling, cuda=cuda)
 
     # compute normalized Gromow-Wasserstein distance
-    return 2*gw_x_g - gw_x_x - gw_g_g, T
+    return 2*gw_x_g - gw_x_x - gw_g_g
 
 
 def loss_total_variation(y):
