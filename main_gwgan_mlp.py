@@ -214,7 +214,7 @@ for it in range(train_iter):
 
     else:
         if train_c and it < stop_adversary:
-            loss_og = loss_procrustes(f_x.to('cuda'), x.to('cuda'), cuda=False)
+            loss_og = loss_procrustes(f_x.to('cuda'), x.to('cuda'), cuda=True)
             loss_adv = -loss_gw + beta * loss_og
             # train adversary
             loss_adv.backward()
