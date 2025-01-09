@@ -264,7 +264,7 @@ for it in range(train_iter):
                                      'd2': f_dx[:, 1]
                                      })
             ax1 = fig6.add_subplot(121)
-            sns.kdeplot(features.g1, features.g2,
+            sns.kdeplot(x=features.g1, y=features.g2,
                         shade=True, cmap='Greys', n_levels=20, legend=False)
             # ax1.set_title(r'$f_\omega(g_\theta(Z))$')
             ax1.set_xlim([-4, 4])
@@ -272,7 +272,7 @@ for it in range(train_iter):
             ax1.set_title(r' ')
 
             ax2 = fig6.add_subplot(122)
-            sns.kdeplot(features.d1, features.d2,
+            sns.kdeplot(x=features.d1, y=features.d2,
                         shade=True, cmap='Greys', n_levels=20, legend=False)
             ax2.set_xlim([-4, 4])
             ax2.set_ylim([-4, 4])
