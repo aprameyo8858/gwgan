@@ -125,10 +125,12 @@ loss_og = 0
 is_hist = list()
 
 reconstruction_losses_last_epoch = []
+# To store the time taken for each epoch
+epoch_times = []
 
 for epoch in range(num_epochs):
     t0 = time()
-
+    epoch_start_time = time.time()  
     for it, (image, _) in enumerate(dataloader):
         train_c = ((it + 1) % (ngen + 1) == 0)
 
@@ -199,6 +201,13 @@ for epoch in range(num_epochs):
             # zero gradients
             reset_grad(generator, adversary)
 
+    epoch_end_time = time.time()  # Record the end time of the epoch
+
+    # Calculate the time taken for the entire epoch
+    epoch_time = epoch_end_time - epoch_start_time
+
+    # Store the epoch time in the list
+    epoch_times.append(epoch_time)
     # plotting
     # get generator example
     g_ex = generator.forward(z_ex)
@@ -228,6 +237,13 @@ for epoch in range(num_epochs):
     loss_orth.append(loss_og)
     plt.close('all')
 
+# After the training loop, compute the mean and standard deviation of time per epoch
+mean_time_per_epoch = np.mean(epoch_times)
+std_dev_time_per_epoch = np.std(epoch_times)
+
+# Print the mean and standard deviation of the time per epoch
+print(f"\nMean time per epoch: {mean_time_per_epoch:.4f} seconds.")
+print(f"Standard deviation in time per epoch: {std_dev_time_per_epoch:.4f} seconds.")
 # After finishing all epochs, calculate the mean and variance of the reconstruction losses in the last epoch
 if reconstruction_losses_last_epoch:
     mean_loss = np.mean(reconstruction_losses_last_epoch)
