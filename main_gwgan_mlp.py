@@ -21,6 +21,8 @@ from model.loss import gwnorm_distance
 from model.loss import loss_procrustes
 from model.sgw_pytorch_original import sgw_gpu_original
 from model.risgw_original import risgw_gpu_original
+from model.rarisgw import rarisgw_gpu
+from model.rasgw_pytorch import rasgw_gpu
 
 # get arguments
 FUNCTION_MAP = {'4mode': gaussians_4mode,
@@ -196,7 +198,8 @@ for it in range(train_iter):
     #loss_gw, T = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss', coupling=True)
     #loss_gw = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss', coupling=False)
     #loss_gw = sgw_gpu_original(D_x_norm.to('cuda'), D_g_norm.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
-    loss_gw = sgw_gpu_original(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
+    #loss_gw = sgw_gpu_original(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
+    loss_gw = rasgw_gpu(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
     #loss_gw = risgw_gpu_original(D_x_norm.to('cuda'), D_g_norm.to('cuda') ,'cuda' ,nproj=500,P=None,lr=0.001, max_iter=20, verbose=False, step_verbose=10, tolog=False, retain_graph=True)
     if it < only_g:
         # train generator
