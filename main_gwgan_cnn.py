@@ -129,7 +129,7 @@ reconstruction_losses_last_epoch = []
 epoch_times = []
 
 for epoch in range(num_epochs):
-    t0 = time()
+    #t0 = time()
     epoch_start_time = time.time()  
     for it, (image, _) in enumerate(dataloader):
         train_c = ((it + 1) % (ngen + 1) == 0)
