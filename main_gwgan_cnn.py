@@ -71,10 +71,10 @@ elif args.data == 'cifar_gray':
         datasets.CIFAR10('./data/cifar10', train=True, download=True,
                          transform=transforms.Compose([
                             # transform RGB to grayscale
-                            transforms.Grayscale(num_output_channels=1),
+                            transforms.Grayscale(num_output_channels=3),
                             transforms.ToTensor(),
-                            transforms.Normalize((0.5, 0.5, 0.5),
-                                                 (0.5, 0.5, 0.5))])),
+                            transforms.Normalize((0.5),
+                                                 (0.5))])),
         batch_size=batch_size, drop_last=True, shuffle=True)
 elif args.data == 'cifar':
     dataloader = torch.utils.data.DataLoader(
