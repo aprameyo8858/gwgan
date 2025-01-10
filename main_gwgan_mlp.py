@@ -192,9 +192,9 @@ for it in range(train_iter):
         f_x = adversary.forward(x)
         f_g = adversary.forward(g)
 
-    if it >= train_iter - 100:  # Only store the last 100 iterations
-        reconstruction_loss = F.mse_loss(x, g)
-        reconstruction_losses_last_100.append(reconstruction_loss.item())
+    #if it >= train_iter - 100:  # Only store the last 100 iterations
+        #reconstruction_loss = F.mse_loss(x, g)
+        #reconstruction_losses_last_100.append(reconstruction_loss.item())
     # compute inner distances
     D_g = get_inner_distances(f_g, metric='euclidean', concat=False)
     D_x = get_inner_distances(f_x, metric='euclidean', concat=False)
@@ -205,8 +205,8 @@ for it in range(train_iter):
 
     # compute normalized gromov-wasserstein distance
     #loss_gw, T = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss', coupling=True)
-    #loss_gw = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss', coupling=False)
-    loss_gw = sgw_gpu_original(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
+    loss_gw = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss', coupling=False)
+    #loss_gw = sgw_gpu_original(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
     #loss_gw = rasgw_gpu(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
     #loss_gw = rarisgw_gpu(f_x.to('cuda'), f_g.to('cuda'),'cuda' ,nproj=500,P=None,lr=0.001, max_iter=20, verbose=False, step_verbose=10, tolog=False, retain_graph=True)
     #loss_gw = risgw_gpu_original(f_x.to('cuda'), f_g.to('cuda') ,'cuda' ,nproj=500,P=None,lr=0.001, max_iter=20, verbose=False, step_verbose=10, tolog=False, retain_graph=True)
