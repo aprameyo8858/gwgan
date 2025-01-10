@@ -10,6 +10,7 @@ import os
 from time import time
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
+import torch.nn.functional as F
 
 # internal imports
 from model.utils import *
@@ -123,6 +124,8 @@ loss_orth = list()
 loss_og = 0
 is_hist = list()
 
+reconstruction_losses_last_epoch = []
+
 for epoch in range(num_epochs):
     t0 = time()
 
@@ -157,6 +160,10 @@ for epoch in range(num_epochs):
         f_x = adversary.forward(x)
         f_g = adversary.forward(g)
 
+        if epoch == num_epochs - 1:
+                reconstruction_loss = F.mse_loss(x, g)
+                reconstruction_losses_last_epoch.append(reconstruction_loss.item())
+
         # compute inner distances
         D_g = get_inner_distances(f_g, metric='euclidean', concat=False)
         D_x = get_inner_distances(f_x, metric='euclidean', concat=False)
@@ -166,9 +173,9 @@ for epoch in range(num_epochs):
         D_g_norm = normalise_matrices(D_g)
 
         # compute normalized gromov-wasserstein distance
-        loss, T = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),
+        loss = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),
                                   epsilon, niter, loss_fun='square_loss',
-                                  coupling=True, cuda=cuda)
+                                  coupling=False, cuda=cuda)
 
         if train_c:
             # train adversary
@@ -203,13 +210,13 @@ for epoch in range(num_epochs):
                nrow=5, normalize=True)
 
     fig1, ax = plt.subplots(1, 3, figsize=(15, 5))
-    ax0 = ax[0].imshow(T.cpu().detach().numpy(), cmap='RdBu_r')
-    colorbar(ax0)
+    #ax0 = ax[0].imshow(T.cpu().detach().numpy(), cmap='RdBu_r')
+    #colorbar(ax0)
     ax1 = ax[1].imshow(D_x.cpu().detach().numpy(), cmap='Blues')
     colorbar(ax1)
     ax2 = ax[2].imshow(D_g.cpu().detach().numpy(), cmap='Blues')
     colorbar(ax2)
-    ax[0].set_title(r'$T$')
+    #ax[0].set_title(r'$T$')
     ax[1].set_title(r'inner distances of $D$')
     ax[2].set_title(r'inner distances of $G$')
     plt.tight_layout(h_pad=1)
@@ -221,6 +228,14 @@ for epoch in range(num_epochs):
     loss_orth.append(loss_og)
     plt.close('all')
 
+# After finishing all epochs, calculate the mean and variance of the reconstruction losses in the last epoch
+if reconstruction_losses_last_epoch:
+    mean_loss = np.mean(reconstruction_losses_last_epoch)
+    variance_loss = np.var(reconstruction_losses_last_epoch)
+
+    print(f"Mean Reconstruction Loss (Epoch {num_epochs}): {mean_loss}")
+    print(f"Variance of Reconstruction Loss (Epoch {num_epochs}): {variance_loss}")
+        
 # plot loss history
 fig2 = plt.figure(figsize=(2.4, 2))
 ax2 = fig2.add_subplot(111)
