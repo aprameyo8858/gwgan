@@ -129,7 +129,8 @@ epoch_times = []
 
 for epoch in range(num_epochs):
     #t0 = time()
-    epoch_start_time = time.time()  
+    epoch_start_time = time.time() 
+    print("The epoch number now is:",epoch)
     for it, (image, _) in enumerate(dataloader):
         train_c = ((it + 1) % (ngen + 1) == 0)
 
