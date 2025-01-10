@@ -54,8 +54,7 @@ if args.data == 'mnist':
                        transform=transforms.Compose([
                            transforms.Resize(32),
                            transforms.ToTensor(),
-                           transforms.Normalize((0.5, 0.5, 0.5),
-                                                (0.5, 0.5, 0.5))])),
+                           transforms.Normalize((0.5,), (0.5,))])),
         batch_size=batch_size, drop_last=True, shuffle=True)
 elif args.data == 'fmnist':
     dataloader = torch.utils.data.DataLoader(
@@ -73,8 +72,8 @@ elif args.data == 'cifar_gray':
                             # transform RGB to grayscale
                             transforms.Grayscale(num_output_channels=3),
                             transforms.ToTensor(),
-                            transforms.Normalize((0.5),
-                                                 (0.5))])),
+                            transforms.Normalize((0.5,),
+                                                 (0.5,))])),
         batch_size=batch_size, drop_last=True, shuffle=True)
 elif args.data == 'cifar':
     dataloader = torch.utils.data.DataLoader(
