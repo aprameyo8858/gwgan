@@ -11,6 +11,7 @@ import os
 import pandas as pd
 import seaborn as sns
 from pylab import array
+import torch.nn.functional as F
 
 # internal imports
 from model.utils import *
@@ -143,6 +144,8 @@ loss_history = list()
 loss_orth = list()
 loss_og = 0
 
+reconstruction_losses_last_100 = []
+
 for it in range(train_iter):
     train_c = ((it + 1) % (ngen + 1) == 0)
 
@@ -186,6 +189,9 @@ for it in range(train_iter):
         f_x = adversary.forward(x)
         f_g = adversary.forward(g)
 
+    if it >= train_iter - 100:  # Only store the last 100 iterations
+        reconstruction_loss = F.mse_loss(x, g)
+        reconstruction_losses_last_100.append(reconstruction_loss.item())
     # compute inner distances
     D_g = get_inner_distances(f_g, metric='euclidean', concat=False)
     D_x = get_inner_distances(f_x, metric='euclidean', concat=False)
@@ -311,6 +317,12 @@ for it in range(train_iter):
         loss_orth.append(loss_og)
 
 
+if len(reconstruction_losses_last_100) > 0:
+    mean_loss = np.mean(reconstruction_losses_last_100)
+    variance_loss = np.var(reconstruction_losses_last_100)
+
+    print(f"Mean Reconstruction Loss (Last 100 iterations): {mean_loss}")
+    print(f"Variance of Reconstruction Loss (Last 100 iterations): {variance_loss}")
 # plot loss history
 fig4 = plt.figure(figsize=(2.4, 2))
 ax4 = fig4.add_subplot(111)
