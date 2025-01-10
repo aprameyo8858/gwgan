@@ -7,6 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import torch
+import time
 import os
 import pandas as pd
 import seaborn as sns
@@ -145,8 +146,10 @@ loss_orth = list()
 loss_og = 0
 
 reconstruction_losses_last_100 = []
+iteration_times = []
 
 for it in range(train_iter):
+    start_time = time.time()
     train_c = ((it + 1) % (ngen + 1) == 0)
 
     start_idx = it * batch_size % data_size
@@ -315,14 +318,35 @@ for it in range(train_iter):
 
         loss_history.append(loss_gw)
         loss_orth.append(loss_og)
+        # After the iteration is finished, record the end time
+        end_time = time.time()
+
+        # Calculate the time taken for the iteration
+        iteration_time = end_time - start_time
+
+        # Store the iteration time in the list
+        iteration_times.append(iteration_time)
 
 
+# After the training loop, compute the average time per iteration
+average_time_per_iteration = np.mean(iteration_times)
+
+# Compute the variance of the time per iteration
+#variance_time_per_iteration = np.var(iteration_times)
+
+# Compute the standard deviation of the time per iteration (if you need it)
+std_dev_time_per_iteration = np.std(iteration_times)
+
+# Print the results
+print(f"\nAverage time per iteration: {average_time_per_iteration:.4f} seconds.")
+#print(f"Variance in time per iteration: {variance_time_per_iteration:.4f} seconds².")
+print(f"Standard deviation in time per iteration: {std_dev_time_per_iteration:.4f} seconds.")
 if len(reconstruction_losses_last_100) > 0:
     mean_loss = np.mean(reconstruction_losses_last_100)
-    variance_loss = np.var(reconstruction_losses_last_100)
+    std_dev_loss = np.std(reconstruction_losses_last_100)
 
     print(f"Mean Reconstruction Loss (Last 100 iterations): {mean_loss}")
-    print(f"Variance of Reconstruction Loss (Last 100 iterations): {variance_loss}")
+    print(f"Standard Deviation of Reconstruction Loss (Last 100 iterations): {std_dev_loss}")
 # plot loss history
 fig4 = plt.figure(figsize=(2.4, 2))
 ax4 = fig4.add_subplot(111)
