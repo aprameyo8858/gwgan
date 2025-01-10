@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import torch
 import pickle
 import os
-from time import time
+from time 
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 import torch.nn.functional as F
