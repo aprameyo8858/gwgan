@@ -9,7 +9,7 @@ import torch
 import geoopt
 import numpy as np
 import torch.nn.functional as F
-from rasgw_pytorch import rasgw_gpu
+from model.rasgw_pytorch import rasgw_gpu
 import time
 
 def rarisgw_gpu(xs,xt,device,nproj=200,P=None,lr=0.001,
