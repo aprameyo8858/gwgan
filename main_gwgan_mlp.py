@@ -192,10 +192,7 @@ for it in range(train_iter):
         f_x = adversary.forward(x)
         f_g = adversary.forward(g)
 
-    if it >= train_iter - 100:  # Only store the last 100 iterations
-        reconstruction_loss = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss', coupling=False)
-        #reconstruction_loss = F.mse_loss(x, g)    #for 2d to 2d data 
-        reconstruction_losses_last_100.append(reconstruction_loss.item())
+    
     # compute inner distances
     D_g = get_inner_distances(f_g, metric='euclidean', concat=False)
     D_x = get_inner_distances(f_x, metric='euclidean', concat=False)
@@ -203,6 +200,11 @@ for it in range(train_iter):
     # distance matrix normalisation
     D_x_norm = normalise_matrices(D_x)
     D_g_norm = normalise_matrices(D_g)
+
+    if it >= train_iter - 100:  # Only store the last 100 iterations
+        reconstruction_loss = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss', coupling=False)
+        #reconstruction_loss = F.mse_loss(x, g)    #for 2d to 2d data 
+        reconstruction_losses_last_100.append(reconstruction_loss.item())
 
     # compute normalized gromov-wasserstein distance
     #loss_gw, T = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss', coupling=True)
