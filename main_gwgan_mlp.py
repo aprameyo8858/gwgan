@@ -322,13 +322,13 @@ for it in range(train_iter):
         loss_history.append(loss_gw)
         loss_orth.append(loss_og)
         # After the iteration is finished, record the end time
-        end_time = time.time()
+    end_time = time.time()
 
-        # Calculate the time taken for the iteration
-        iteration_time = end_time - start_time
+    # Calculate the time taken for the iteration
+    iteration_time = end_time - start_time
 
-        # Store the iteration time in the list
-        iteration_times.append(iteration_time)
+    # Store the iteration time in the list
+    iteration_times.append(iteration_time)
 
 
 # After the training loop, compute the average time per iteration
