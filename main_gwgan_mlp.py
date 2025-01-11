@@ -351,7 +351,7 @@ if len(reconstruction_losses_last_100) > 0:
     print(f"Mean Reconstruction Loss (Last 100 iterations): {mean_loss}")
     print(f"Standard Deviation of Reconstruction Loss (Last 100 iterations): {std_dev_loss}")
 # plot loss history
-loss_history = loss_history.cpu().detach().numpy()
+loss_history = loss_history.detach().numpy()
 fig4 = plt.figure(figsize=(2.4, 2))
 ax4 = fig4.add_subplot(111)
 ax4.plot(np.arange(len(loss_history))*100, loss_history, 'k.')
