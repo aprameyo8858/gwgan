@@ -53,12 +53,22 @@ id = args.id
 
 model = 'gwgan_{}_eps_{}_tv_{}_procrustes_{}_ngen_{}_channels_{}_{}' \
         .format(args.data, epsilon, lam, beta, ngen, channels, id)
-save_fig_path = 'out_fid_test_' + model
+save_fig_path = 'out_' + model
 if not os.path.exists(save_fig_path):
     os.makedirs(save_fig_path)
 
 # data import
 if args.data == 'mnist':
+    dataloader = torch.utils.data.DataLoader(
+        datasets.MNIST('./data/mnist', train=True, download=True,
+                       transform=transforms.Compose([
+                           transforms.Resize(32),
+                           transforms.ToTensor(),
+                           transforms.Normalize((0.5, 0.5, 0.5),
+                                                (0.5, 0.5, 0.5))])),
+        batch_size=batch_size, drop_last=True, shuffle=True)
+# data import
+if args.data == 'mnist_':
     dataloader = torch.utils.data.DataLoader(
         datasets.MNIST('./data/mnist', train=True, download=True,
                        transform=transforms.Compose([
@@ -242,7 +252,7 @@ for epoch in range(num_epochs):
         f_x = adversary.forward(x)
         f_g = adversary.forward(g)
 
-        if epoch == 0:        #num_epochs - 1
+        if epoch == -1:        #num_epochs - 1
                 real_images = x  # Real images from the dataloader
                 generated_images = g  # Generated images
 
