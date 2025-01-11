@@ -194,8 +194,8 @@ for it in range(train_iter):
 
     
     # compute inner distances
-    D_g = get_inner_distances(g, metric='euclidean', concat=False)
-    D_x = get_inner_distances(x, metric='euclidean', concat=False)
+    D_g = get_inner_distances(f_g, metric='euclidean', concat=False)
+    D_x = get_inner_distances(f_x, metric='euclidean', concat=False)
 
     # distance matrix normalisation
     D_x_norm = normalise_matrices(D_x)
