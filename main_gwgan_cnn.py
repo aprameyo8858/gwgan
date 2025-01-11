@@ -46,7 +46,7 @@ id = args.id
 
 model = 'gwgan_{}_eps_{}_tv_{}_procrustes_{}_ngen_{}_channels_{}_{}' \
         .format(args.data, epsilon, lam, beta, ngen, channels, id)
-save_fig_path = 'out_' + model
+save_fig_path = 'out_rasgw_' + model
 if not os.path.exists(save_fig_path):
     os.makedirs(save_fig_path)
 
