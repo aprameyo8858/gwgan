@@ -227,9 +227,15 @@ for epoch in range(num_epochs):
                 real_images = x  # Real images from the dataloader
                 generated_images = g  # Generated images
 
-                # Normalize images to [0, 1] for FID calculation
+                # Ensure that both real and generated images are in the range [0, 1]
                 real_images = (real_images + 1) / 2  # Rescale to [0, 1]
                 generated_images = (generated_images + 1) / 2  # Rescale to [0, 1]
+
+                # If images have only 1 channel (grayscale), convert them to RGB
+                if real_images.shape[1] == 1:  # If single-channel (grayscale)
+                        real_images = real_images.repeat(1, 3, 1, 1)  # Repeat across the 3 channels
+                if generated_images.shape[1] == 1:  # If single-channel (grayscale)
+                        generated_images = generated_images.repeat(1, 3, 1, 1)  # Repeat across the 3 channels
 
                 # Calculate FID score for this iteration
                 fid_score = calculate_fid(real_images, generated_images, device='cuda')
