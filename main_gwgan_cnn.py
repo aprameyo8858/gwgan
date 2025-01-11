@@ -11,6 +11,10 @@ import time
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 import torch.nn.functional as F
+import torch
+import torch.nn as nn
+from torchvision import models, transforms
+from scipy.linalg import sqrtm
 
 # internal imports
 from model.utils import *
@@ -21,6 +25,8 @@ from model.sgw_pytorch_original import sgw_gpu_original
 from model.risgw_original import risgw_gpu_original
 from model.rarisgw import rarisgw_gpu
 from model.rasgw_pytorch import rasgw_gpu
+
+
 # get arguments
 args = get_args()
 
@@ -46,7 +52,7 @@ id = args.id
 
 model = 'gwgan_{}_eps_{}_tv_{}_procrustes_{}_ngen_{}_channels_{}_{}' \
         .format(args.data, epsilon, lam, beta, ngen, channels, id)
-save_fig_path = 'out_rasgw_' + model
+save_fig_path = 'out_fid_test_' + model
 if not os.path.exists(save_fig_path):
     os.makedirs(save_fig_path)
 
@@ -114,6 +120,58 @@ c_optimizer = torch.optim.Adam(adversary.parameters(), lr, betas=(0.5, 0.99))
 # zero gradients
 adversary.zero_grad()
 
+def calculate_fid(real_images, generated_images, device='cuda'):
+    # Preprocess images (resize to 299x299 and normalize as per InceptionV3 requirements)
+    transform = transforms.Compose([
+        transforms.Resize((299, 299)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+    
+    # InceptionV3 model pre-trained on ImageNet
+    inception_model = models.inception_v3(pretrained=True, transform_input=False).to(device)
+    inception_model.eval()
+
+    # Extract features from InceptionV3 (use the average pooling layer's output)
+    def get_features(images):
+        # Pass images through InceptionV3
+        with torch.no_grad():
+            features = inception_model(images)
+            # We want the final pooling layer's features
+            if features.size(1) == 1000:  # InceptionV3 returns class logits
+                features = features.view(features.size(0), -1)  # Flatten to get the 2048-dimensional vector
+            return features
+
+    # Process real and generated images
+    real_images = real_images.to(device)
+    generated_images = generated_images.to(device)
+    
+    real_features = get_features(real_images)
+    generated_features = get_features(generated_images)
+
+    # Calculate the mean and covariance of both real and generated features
+    mu_real = real_features.mean(dim=0)
+    mu_gen = generated_features.mean(dim=0)
+    
+    sigma_real = torch.cov(real_features.T)
+    sigma_gen = torch.cov(generated_features.T)
+    
+    # Convert covariance matrices to numpy for scipy's sqrtm
+    mu_real = mu_real.cpu().numpy()
+    mu_gen = mu_gen.cpu().numpy()
+    sigma_real = sigma_real.cpu().numpy()
+    sigma_gen = sigma_gen.cpu().numpy()
+
+    # Compute FID
+    diff = mu_real - mu_gen
+    covmean, _ = sqrtm(sigma_real.dot(sigma_gen), disp=False)
+    
+    # The FID metric
+    fid = np.sum(diff**2) + np.trace(sigma_real + sigma_gen - 2 * covmean)
+    
+    return fid
+
+
 # sample for plotting
 num_test_samples = batch_size
 z_ex = torch.randn(num_test_samples, z_dim)
@@ -126,8 +184,8 @@ loss_orth = list()
 loss_og = 0
 is_hist = list()
 
-reconstruction_losses_last_epoch = []
-# To store the time taken for each epoch
+fid_scores_last_epoch = []          # List to store FID scores for each iteration
+reconstruction_losses_last_epoch = []          # To store the time taken for each epoch
 epoch_times = []
 
 for epoch in range(num_epochs):
@@ -165,9 +223,22 @@ for epoch in range(num_epochs):
         f_x = adversary.forward(x)
         f_g = adversary.forward(g)
 
-        if epoch == num_epochs - 1:
+        if epoch == 0:        #num_epochs - 1
+                real_images = x  # Real images from the dataloader
+                generated_images = g  # Generated images
+
+                # Normalize images to [0, 1] for FID calculation
+                real_images = (real_images + 1) / 2  # Rescale to [0, 1]
+                generated_images = (generated_images + 1) / 2  # Rescale to [0, 1]
+
+                # Calculate FID score for this iteration
+                fid_score = calculate_fid(real_images, generated_images, device='cuda')
+
+                # Store the FID score for this iteration
+                fid_scores_last_epoch.append(fid_score)
                 reconstruction_loss = F.mse_loss(x, g)
                 reconstruction_losses_last_epoch.append(reconstruction_loss.item())
+                print("fid score:",fid_score,"recon loss:",reconsruction_loss.item())
 
         # compute inner distances
         D_g = get_inner_distances(f_g, metric='euclidean', concat=False)
@@ -252,6 +323,12 @@ print(f"\nMean time per epoch: {mean_time_per_epoch:.4f} seconds.")
 print(f"Standard deviation in time per epoch: {std_dev_time_per_epoch:.4f} seconds.")
 # After finishing all epochs, calculate the mean and variance of the reconstruction losses in the last epoch
 if reconstruction_losses_last_epoch:
+    mean_fid = np.mean(fid_scores_last_epoch)
+    variance_fid = np.var(fid_scores_last_epoch)
+
+    print(f"\nMean FID Score (Epoch {num_epochs}): {mean_fid}")
+    print(f"Variance of FID Score (Epoch {num_epochs}): {variance_fid}")
+        
     mean_loss = np.mean(reconstruction_losses_last_epoch)
     variance_loss = np.var(reconstruction_losses_last_epoch)
 
