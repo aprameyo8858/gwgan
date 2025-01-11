@@ -120,56 +120,64 @@ c_optimizer = torch.optim.Adam(adversary.parameters(), lr, betas=(0.5, 0.99))
 # zero gradients
 adversary.zero_grad()
 
+# Load the InceptionV3 model
+inception_model = models.inception_v3(pretrained=True)
+inception_model.eval()
+
+# Define the transformation to resize and convert grayscale to RGB
+resize_transform_fid = transforms.Compose([
+    transforms.Resize((299, 299)),  # Resize images to 299x299
+    transforms.Grayscale(num_output_channels=3),  # Convert grayscale to RGB
+    transforms.ToTensor(),  # Convert to tensor
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalize the images
+])
+
 def calculate_fid(real_images, generated_images, device='cuda'):
-    # Preprocess images (resize to 299x299 and normalize as per InceptionV3 requirements)
-    transform = transforms.Compose([
-        transforms.Resize((299, 299)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
+    """
+    Calculate FID score between real and generated images.
     
-    # InceptionV3 model pre-trained on ImageNet
-    inception_model = models.inception_v3(pretrained=True, transform_input=False).to(device)
-    inception_model.eval()
+    Args:
+        real_images (Tensor): A batch of real images (grayscale).
+        generated_images (Tensor): A batch of generated images (grayscale).
+        device (str): The device to run the model on ('cuda' or 'cpu').
 
-    # Extract features from InceptionV3 (use the average pooling layer's output)
+    Returns:
+        float: The FID score.
+    """
+    
+    # Ensure model is on the right device
+    inception_model.to(device)
+    
+    # Function to get features from InceptionV3 after transforming the images
     def get_features(images):
-        # Pass images through InceptionV3
-        with torch.no_grad():
-            features = inception_model(images)
-            # We want the final pooling layer's features
-            if features.size(1) == 1000:  # InceptionV3 returns class logits
-                features = features.view(features.size(0), -1)  # Flatten to get the 2048-dimensional vector
-            return features
+        # Apply the resize transformation to the images
+        images_resized = torch.stack([resize_transform_fid(img) for img in images])
+        
+        # Ensure the images are on the same device as the model
+        images_resized = images_resized.to(device)
 
-    # Process real and generated images
-    real_images = real_images.to(device)
-    generated_images = generated_images.to(device)
-    
+        # Forward pass through the InceptionV3 model (use the logits output)
+        with torch.no_grad():
+            features = inception_model(images_resized)
+
+        return features
+
+    # Get features for both real and generated images
     real_features = get_features(real_images)
     generated_features = get_features(generated_images)
 
-    # Calculate the mean and covariance of both real and generated features
-    mu_real = real_features.mean(dim=0)
-    mu_gen = generated_features.mean(dim=0)
+    # Calculate the mean and covariance of real and generated features
+    mu_real = torch.mean(real_features, dim=0)
+    mu_generated = torch.mean(generated_features, dim=0)
     
+    # Calculate the covariance matrices
     sigma_real = torch.cov(real_features.T)
-    sigma_gen = torch.cov(generated_features.T)
-    
-    # Convert covariance matrices to numpy for scipy's sqrtm
-    mu_real = mu_real.cpu().numpy()
-    mu_gen = mu_gen.cpu().numpy()
-    sigma_real = sigma_real.cpu().numpy()
-    sigma_gen = sigma_gen.cpu().numpy()
+    sigma_generated = torch.cov(generated_features.T)
 
-    # Compute FID
-    diff = mu_real - mu_gen
-    covmean, _ = sqrtm(sigma_real.dot(sigma_gen), disp=False)
+    # Calculate the FID score
+    fid_score = torch.norm(mu_real - mu_generated) ** 2 + torch.trace(sigma_real + sigma_generated - 2 * torch.sqrt(torch.mm(sigma_real, sigma_generated)))
     
-    # The FID metric
-    fid = np.sum(diff**2) + np.trace(sigma_real + sigma_gen - 2 * covmean)
-    
-    return fid
+    return fid_score.item()
 
 
 # sample for plotting
