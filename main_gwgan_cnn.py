@@ -17,7 +17,10 @@ from model.utils import *
 from model.model_cnn import Generator, Adversary
 from model.model_cnn import weights_init_generator, weights_init_adversary
 from model.loss import gwnorm_distance, loss_total_variation, loss_procrustes
-
+from model.sgw_pytorch_original import sgw_gpu_original
+from model.risgw_original import risgw_gpu_original
+from model.rarisgw import rarisgw_gpu
+from model.rasgw_pytorch import rasgw_gpu
 # get arguments
 args = get_args()
 
