@@ -179,8 +179,8 @@ for epoch in range(num_epochs):
 
         # compute normalized gromov-wasserstein distance
         #loss = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss',coupling=False, cuda=cuda)
-        loss = sgw_gpu_original(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
-        #loss = rasgw_gpu(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
+        #loss = sgw_gpu_original(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
+        loss = rasgw_gpu(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
         #loss = rarisgw_gpu(f_x.to('cuda'), f_g.to('cuda'),'cuda' ,nproj=500,P=None,lr=0.001, max_iter=20, verbose=False, step_verbose=10, tolog=False, retain_graph=True)
         #loss = risgw_gpu_original(f_x.to('cuda'), f_g.to('cuda') ,'cuda' ,nproj=500,P=None,lr=0.001, max_iter=20, verbose=False, step_verbose=10, tolog=False, retain_graph=True)
     
