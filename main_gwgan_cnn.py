@@ -15,6 +15,7 @@ import torch
 import torch.nn as nn
 from torchvision import models, transforms
 from scipy.linalg import sqrtm
+from PIL import Image
 
 # internal imports
 from model.utils import *
@@ -120,17 +121,23 @@ c_optimizer = torch.optim.Adam(adversary.parameters(), lr, betas=(0.5, 0.99))
 # zero gradients
 adversary.zero_grad()
 
+
 # Load the InceptionV3 model
 inception_model = models.inception_v3(pretrained=True)
 inception_model.eval()
 
 # Define the transformation to resize and convert grayscale to RGB
-resize_transform_fid = transforms.Compose([
+resize_transform = transforms.Compose([
     transforms.Resize((299, 299)),  # Resize images to 299x299
     transforms.Grayscale(num_output_channels=3),  # Convert grayscale to RGB
     transforms.ToTensor(),  # Convert to tensor
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Normalize the images
 ])
+
+# Function to convert torch tensor to PIL Image
+def tensor_to_pil_image(tensor):
+    # Convert from tensor with shape (C, H, W) to PIL Image
+    return transforms.ToPILImage()(tensor.cpu())
 
 def calculate_fid(real_images, generated_images, device='cuda'):
     """
@@ -151,10 +158,14 @@ def calculate_fid(real_images, generated_images, device='cuda'):
     # Function to get features from InceptionV3 after transforming the images
     def get_features(images):
         # Apply the resize transformation to the images
-        images_resized = torch.stack([resize_transform_fid(img) for img in images])
-        
-        # Ensure the images are on the same device as the model
-        images_resized = images_resized.to(device)
+        images_resized = []
+        for img in images:
+            pil_img = tensor_to_pil_image(img)  # Convert tensor to PIL image
+            resized_img = resize_transform(pil_img)  # Apply resize and other transforms
+            images_resized.append(resized_img)
+
+        # Stack the images back into a batch
+        images_resized = torch.stack(images_resized).to(device)
 
         # Forward pass through the InceptionV3 model (use the logits output)
         with torch.no_grad():
