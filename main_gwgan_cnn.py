@@ -58,9 +58,9 @@ if not os.path.exists(save_fig_path):
     os.makedirs(save_fig_path)
 
 # data import
-if args.data == 'mnist':
+if args.data == 'mnist_':
     dataloader = torch.utils.data.DataLoader(
-        datasets.MNIST('./data/mnist/MNIST/raw', train=True, download=True,
+        datasets.MNIST('./data/mnist', train=True, download=True,
                        transform=transforms.Compose([
                            transforms.Resize(32),
                            transforms.ToTensor(),
@@ -68,7 +68,7 @@ if args.data == 'mnist':
                                                 (0.5, 0.5, 0.5))])),
         batch_size=batch_size, drop_last=True, shuffle=True)
 # data import
-elif args.data == 'mnist_':
+elif args.data == 'mnist':
     dataloader = torch.utils.data.DataLoader(
         datasets.MNIST('./data/mnist', train=True, download=True,
                        transform=transforms.Compose([
