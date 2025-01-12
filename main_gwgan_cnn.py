@@ -252,7 +252,7 @@ for epoch in range(num_epochs):
         f_x = adversary.forward(x)
         f_g = adversary.forward(g)
 
-        if epoch == -1:        #num_epochs - 1
+        if epoch == num_epochs-1:        #num_epochs - 1
                 real_images = x  # Real images from the dataloader
                 generated_images = g  # Generated images
 
@@ -267,13 +267,13 @@ for epoch in range(num_epochs):
                         generated_images = generated_images.repeat(1, 3, 1, 1)  # Repeat across the 3 channels
 
                 # Calculate FID score for this iteration
-                fid_score = calculate_fid(real_images, generated_images, device='cuda')
+                #fid_score = calculate_fid(real_images, generated_images, device='cuda')
 
                 # Store the FID score for this iteration
-                fid_scores_last_epoch.append(fid_score)
+                #fid_scores_last_epoch.append(fid_score)
                 reconstruction_loss = F.mse_loss(x, g)
                 reconstruction_losses_last_epoch.append(reconstruction_loss.item())
-                print("fid score:",fid_score,"recon loss:",reconsruction_loss.item())
+                #print("fid score:",fid_score,"recon loss:",reconsruction_loss.item())
 
         # compute inner distances
         D_g = get_inner_distances(f_g, metric='euclidean', concat=False)
