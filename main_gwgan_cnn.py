@@ -60,7 +60,7 @@ if not os.path.exists(save_fig_path):
 # data import
 if args.data == 'mnist':
     dataloader = torch.utils.data.DataLoader(
-        datasets.MNIST('./data/mnist', train=True, download=True,
+        datasets.MNIST('.data/mnist/MNIST/raw', train=True, download=True,
                        transform=transforms.Compose([
                            transforms.Resize(32),
                            transforms.ToTensor(),
