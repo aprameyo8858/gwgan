@@ -53,8 +53,8 @@ if args.data == 'mnist':
                        transform=transforms.Compose([
                            transforms.Resize(32),
                            transforms.ToTensor(),
-                           transforms.Normalize((0.5, 0.5, 0.5),
-                                                (0.5, 0.5, 0.5))])),
+                           transforms.Normalize((0.5,),
+                                                (0.5,))])),
         batch_size=batch_size, drop_last=True, shuffle=True)
 elif args.data == 'fmnist':
     dataloader = torch.utils.data.DataLoader(
@@ -125,6 +125,7 @@ is_hist = list()
 
 for epoch in range(num_epochs):
     t0 = time()
+    print("epoch number is:",epoch)
 
     for it, (image, _) in enumerate(dataloader):
         train_c = ((it + 1) % (ngen + 1) == 0)
@@ -166,9 +167,9 @@ for epoch in range(num_epochs):
         D_g_norm = normalise_matrices(D_g)
 
         # compute normalized gromov-wasserstein distance
-        loss, T = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),
+        loss= gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),
                                   epsilon, niter, loss_fun='square_loss',
-                                  coupling=True, cuda=cuda)
+                                  coupling=False, cuda=cuda)
 
         if train_c:
             # train adversary
@@ -203,13 +204,13 @@ for epoch in range(num_epochs):
                nrow=5, normalize=True)
 
     fig1, ax = plt.subplots(1, 3, figsize=(15, 5))
-    ax0 = ax[0].imshow(T.cpu().detach().numpy(), cmap='RdBu_r')
-    colorbar(ax0)
+    #ax0 = ax[0].imshow(T.cpu().detach().numpy(), cmap='RdBu_r')
+    #colorbar(ax0)
     ax1 = ax[1].imshow(D_x.cpu().detach().numpy(), cmap='Blues')
     colorbar(ax1)
     ax2 = ax[2].imshow(D_g.cpu().detach().numpy(), cmap='Blues')
     colorbar(ax2)
-    ax[0].set_title(r'$T$')
+    #ax[0].set_title(r'$T$')
     ax[1].set_title(r'inner distances of $D$')
     ax[2].set_title(r'inner distances of $G$')
     plt.tight_layout(h_pad=1)

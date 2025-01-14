@@ -7,5 +7,5 @@ export MPLBACKEND="agg"
 
 #python3 main_gwgan_cnn.py --data fmnist --num_epochs 100 --beta 35  --cuda
 #python3 main_gwgan_cnn.py --data cifar_gray --num_epochs 100 --beta 40  --cuda
-python3 main_gwgan_cnn.py --data mnist --num_epochs 25 --beta 32 --cuda  --n_channels 1
+python3 main_gwgan_cnn_original.py --data mnist --num_epochs 25 --beta 32 --cuda  --n_channels 1
 # (beta for MNIST: 32, for gray-scale CIFAR: 40)
