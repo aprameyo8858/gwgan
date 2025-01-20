@@ -26,6 +26,7 @@ from model.sgw_pytorch_original import sgw_gpu_original
 from model.risgw_original import risgw_gpu_original
 from model.rarisgw import rarisgw_gpu
 from model.rasgw_pytorch import rasgw_gpu
+from model.iwrasgw_pytorch import iwrasgw_gpu
 
 
 # get arguments
@@ -270,10 +271,10 @@ for epoch in range(num_epochs):
                 #fid_score = calculate_fid(real_images, generated_images, device='cuda')
 
                 # Store the FID score for this iteration
-                #fid_scores_last_epoch.append(fid_score)
+                fid_scores_last_epoch.append(fid_score)
                 reconstruction_loss = F.mse_loss(x, g)
                 reconstruction_losses_last_epoch.append(reconstruction_loss.item())
-                #print("fid score:",fid_score,"recon loss:",reconsruction_loss.item())
+                print("fid score:",fid_score,"recon loss:",reconsruction_loss.item())
 
         # compute inner distances
         D_g = get_inner_distances(f_g, metric='euclidean', concat=False)
@@ -287,6 +288,7 @@ for epoch in range(num_epochs):
         #loss = gwnorm_distance((D_x, D_x_norm), (D_g, D_g_norm),epsilon, niter, loss_fun='square_loss',coupling=False, cuda=cuda)
         #loss = sgw_gpu_original(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
         loss = rasgw_gpu(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
+        loss = iwrasgw_gpu(f_x.to('cuda'), f_g.to('cuda') ,'cuda',nproj=500,tolog=False,P=None)
         #loss = rarisgw_gpu(f_x.to('cuda'), f_g.to('cuda'),'cuda' ,nproj=500,P=None,lr=0.001, max_iter=20, verbose=False, step_verbose=10, tolog=False, retain_graph=True)
         #loss = risgw_gpu_original(f_x.to('cuda'), f_g.to('cuda') ,'cuda' ,nproj=500,P=None,lr=0.001, max_iter=20, verbose=False, step_verbose=10, tolog=False, retain_graph=True)
     
